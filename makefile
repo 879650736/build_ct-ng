@@ -10,10 +10,10 @@ TARBALL_URL := http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-$(VERS
 PGP_FINGERPRINT := 721B0FB1CDC8318AEBB888B809F6DD5F1F30EF2E
 
 # Define the installation directory
-TOOLDIR := $(HOME)/ct-ng
+TOOLDIR := $(HOME)/ct-ng-tool
 WORKDIR := $(HOME)/ct-ng-work
 
-test: download build install export_path
+test: download build install export_path local
 
 all: download verify build install export_path
 
@@ -52,8 +52,8 @@ install:
 
 # Target to export the PATH
 export_path:
-	@if ! grep -q "$(TOOLDIR)/bin" ~/.zshrc; then \
-		echo "export PATH=$(TOOLDIR)/bin:\$$PATH" >> ~/.zshrc; \
+	@if ! grep -q "$(TOOLDIR)/bin" ~/.env_vars; then \
+		echo "export PATH=$(TOOLDIR)/bin:\$$PATH" >> ~/.env_vars; \
 	fi
 	@echo "请执行以下命令完成配置:"
 	@echo "source ~/.zshrc"
@@ -65,3 +65,9 @@ run:
 help:
 	mkdir -p $(WORKDIR)
 	cd $(WORKDIR) && ct-ng help
+
+local:
+	cd crosstool-ng-$(VERSION);\
+	./configure --enable-local;\
+	make
+#./ct-ng help
