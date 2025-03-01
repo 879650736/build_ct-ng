@@ -3,6 +3,9 @@
 ./*.log
 
 
+
 /crosstool-ng-*
 /include
 /.build
+
+*.log
