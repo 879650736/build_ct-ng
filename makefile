@@ -13,13 +13,15 @@ PGP_FINGERPRINT := 721B0FB1CDC8318AEBB888B809F6DD5F1F30EF2E
 TARGET := arm-unknown-linux-gnueabi
 TOOLDIR := $(HOME)/ct-ng-tool
 WORKDIR := $(HOME)/ct-ng-work
-BUILDDIR := $(HOME)/build_toolchain/build_ct-ng/.build
+BUILDDIR := $(HOME)/x-tools
+LOG_DIR := $(HOME)/build_toolchain/build_ct-ng/log
 
 test: apt download build install export_path local
 
 all: download verify build install export_path
 
-apt: sudo apt-get install -y gcc g++ \
+apt: sudo apt update && sudo apt upgrade -y
+	sudo apt-get install -y gcc g++ \
 	build-essential gperf bison flex texinfo  \
 	help2man make libncurses5-dev  \
 	python3-dev autoconf automake libtool \
@@ -89,14 +91,16 @@ ctinstall_env:
 	@if ! grep -q "$(BUILDDIR)/$(TARGET)/bin" ~/.zshrc; then \
 		echo "export PATH=$(BUILDDIR)/$(TARGET)/bin:\$$PATH" >> ~/.zshrc; \
 	fi
-	. ~/.zshrc;
+	@if ! grep -q "$(BUILDDIR)/$(TARGET)/bin" ~/.bashrc; then \
+		echo "export PATH=$(BUILDDIR)/$(TARGET)/bin:\$$PATH" >> ~/.bashrc; \
+	fi
 	echo "环境变量配置完成! 请手动执行: source ~/.zshrc"
 
 compile_test:
 	mkdir -p log
-	@echo "Compiling test code with arm-linux-gnueabihf-gcc..." | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
-	arm-linux-gnueabihf-gccgo -o test_code/arm_test test_code/arm_test.go | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
-	arm-linux-gnueabihf-gccgo -static -o test_code/arm_test_static test_code/arm_test.go | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
+	@echo "Compiling test code with arm-unknown-linux-gnueabi-gcc..." | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
+	arm-unknown-linux-gnueabi-gccgo -o test_code/arm_test test_code/arm_test.go | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
+	arm-unknown-linux-gnueabi-gccgo -static -o test_code/arm_test_static test_code/arm_test.go | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
 	@echo "Compilation completed."
 
 file:
