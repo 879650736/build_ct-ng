@@ -10,8 +10,10 @@ TARBALL_URL := http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-$(VERS
 PGP_FINGERPRINT := 721B0FB1CDC8318AEBB888B809F6DD5F1F30EF2E
 
 # Define the installation directory
+TARGET := arm-unknown-linux-gnueabi
 TOOLDIR := $(HOME)/ct-ng-tool
 WORKDIR := $(HOME)/ct-ng-work
+BUILDDIR := $(HOME)/build_toolchain/build_ct-ng/.build
 
 test: apt download build install export_path local
 
@@ -77,3 +79,50 @@ local:
 	./configure --enable-local;\
 	make
 #./ct-ng help
+ctbuild:
+
+	unset CFLAGS CXXFLAGS LDFLAGS LD_LIBRARY_PATH; \
+	ct-ng build
+
+ctinstall_env:
+	echo "安装完成，配置环境变量..."
+	@if ! grep -q "$(BUILDDIR)/$(TARGET)/bin" ~/.zshrc; then \
+		echo "export PATH=$(BUILDDIR)/$(TARGET)/bin:\$$PATH" >> ~/.zshrc; \
+	fi
+	. ~/.zshrc;
+	echo "环境变量配置完成! 请手动执行: source ~/.zshrc"
+
+compile_test:
+	mkdir -p log
+	@echo "Compiling test code with arm-linux-gnueabihf-gcc..." | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
+	arm-linux-gnueabihf-gccgo -o test_code/arm_test test_code/arm_test.go | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
+	arm-linux-gnueabihf-gccgo -static -o test_code/arm_test_static test_code/arm_test.go | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
+	@echo "Compilation completed."
+
+file:
+	mkdir -p log
+	@echo "display file type" | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/file-target-$(DATE).log
+	file test_code/arm_test | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/file-target-$(DATE).log
+	file test_code/arm_test_static | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/file-target-$(DATE).log
+
+ldd:
+	mkdir -p log
+	@echo "display ldd" | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/ldd-target-$(DATE).log
+	ldd test_code/arm_test | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/ldd-target-$(DATE).log
+#ldd test_code/arm_test_static > static_ldd.log 2>&1 | tee -a $(LOG_DIR)/ldd-target.log
+
+run_test:
+	mkdir -p log
+	@echo "Running compiled binary with qemu-arm..." | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
+	@echo "begin first test" | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
+	qemu-arm -L $(BUILDDIR)/$(TARGET) test_code/arm_test | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
+	@echo "=========================================" | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
+	@echo "begin static test" | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
+	qemu-arm -L $(BUILDDIR)/$(TARGET) test_code/arm_test_static | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
+	@echo "Test execution completed." | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
+
+clean:
+	echo "删除无用文件..."
+	@cd $(BUILDDIR); \
+	rm -rf $(TARGET)
+	echo "删除无用文件完成"

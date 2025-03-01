@@ -1,5 +1,8 @@
 ./crosstool-ng-*
 ./*.tar.*
+./*.log
+
 
 /crosstool-ng-*
 /include
+/.build
