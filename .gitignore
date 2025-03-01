@@ -2,3 +2,4 @@
 ./*.tar.*
 
 /crosstool-ng-*
+/include

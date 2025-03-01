@@ -13,9 +13,15 @@ PGP_FINGERPRINT := 721B0FB1CDC8318AEBB888B809F6DD5F1F30EF2E
 TOOLDIR := $(HOME)/ct-ng-tool
 WORKDIR := $(HOME)/ct-ng-work
 
-test: download build install export_path local
+test: apt download build install export_path local
 
 all: download verify build install export_path
+
+apt: sudo apt-get install -y gcc g++ \
+	build-essential gperf bison flex texinfo  \
+	help2man make libncurses5-dev  \
+	python3-dev autoconf automake libtool \
+	libtool-bin gawk wget bzip2 xz-utils unzip 
 
 # Target to download the tarball
 download:
