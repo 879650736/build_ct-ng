@@ -13,13 +13,17 @@ PGP_FINGERPRINT := 721B0FB1CDC8318AEBB888B809F6DD5F1F30EF2E
 TARGET := arm-unknown-linux-gnueabi
 TOOLDIR := $(HOME)/ct-ng-tool
 WORKDIR := $(HOME)/ct-ng-work
-CROSSTOOLDIR := $(HOME)/x-tools
-BUILDDIR := $(HOME)/build_toolchain/build_ct-ng/.build
+CROSSTOOL_DIR := $(HOME)/x-tools
+BUILD_DIR := $(HOME)/build_toolchain/build_ct-ng/.build
 LOG_DIR := $(HOME)/build_toolchain/build_ct-ng/log
-GCC_BUILD_DIR := $(BUILDDIR)/$(TARGET)/build/build-cc-gcc-final
+GCC_BUILD_DIR := $(BUILD_DIR)/$(TARGET)/build/build-cc-gcc-final
+SYSROOT_DIR := $(CROSSTOOL_DIR)/$(TARGET)/$(TARGET)/sysroot
+# Define the current date
 DATE := $(shell date +%Y%m%d)
 
-test: ctbuild ctinstall_env compile_test file ldd run_test
+test: ldd
+
+build_cross_toolchain: ctbuild ctinstall_env compile_test file ldd run_test
 
 all: download verify build install export_path local
 
@@ -28,7 +32,8 @@ apt: sudo apt update && sudo apt upgrade -y
 	build-essential gperf bison flex texinfo  \
 	help2man make libncurses5-dev  \
 	python3-dev autoconf automake libtool \
-	libtool-bin gawk wget bzip2 xz-utils unzip dejagnu
+	libtool-bin gawk wget bzip2 xz-utils\
+	unzip dejagnu libcrypt-dev
 
 # Target to download the tarball
 download:
@@ -91,11 +96,11 @@ ctbuild:
 
 ctinstall_env:
 	echo "安装完成，配置环境变量..."
-	@if ! grep -q "$(CROSSTOOLDIR)/$(TARGET)/bin" ~/.zshrc; then \
-		echo "export PATH=$(CROSSTOOLDIR)/$(TARGET)/bin:\$$PATH" >> ~/.zshrc; \
+	@if ! grep -q "$(CROSSTOOL_DIR)/$(TARGET)/bin" ~/.zshrc; then \
+		echo "export PATH=$(CROSSTOOL_DIR)/$(TARGET)/bin:\$$PATH" >> ~/.zshrc; \
 	fi
-	@if ! grep -q "$(CROSSTOOLDIR)/$(TARGET)/bin" ~/.bashrc; then \
-		echo "export PATH=$(CROSSTOOLDIR)/$(TARGET)/bin:\$$PATH" >> ~/.bashrc; \
+	@if ! grep -q "$(CROSSTOOL_DIR)/$(TARGET)/bin" ~/.bashrc; then \
+		echo "export PATH=$(CROSSTOOL_DIR)/$(TARGET)/bin:\$$PATH" >> ~/.bashrc; \
 	fi
 	echo "环境变量配置完成! 请手动执行: source ~/.zshrc"
 
@@ -123,29 +128,29 @@ compile_test:
 file:
 	mkdir -p log
 	@echo "display file type" | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/file-target-$(DATE).log
-	file test_code/arm_test | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/file-target-$(DATE).log
-	file test_code/arm_test_static | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/file-target-$(DATE).log
+	@file test_code/arm_test | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/file-target-$(DATE).log
+	@file test_code/arm_test_static | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/file-target-$(DATE).log
 
 ldd:
 	mkdir -p log
 	@echo "display ldd" | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/ldd-target-$(DATE).log
-	ldd test_code/arm_test | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/ldd-target-$(DATE).log
-#ldd test_code/arm_test_static > static_ldd.log 2>&1 | tee -a $(LOG_DIR)/ldd-target.log
+	@$(TARGET)-ldd --root=$(SYSROOT_DIR) test_code/arm_test | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/ldd-target-$(DATE).log
+	@$(TARGET)-ldd --root=$(SYSROOT_DIR) test_code/arm_test_static  | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/ldd-target-$(DATE).log
 
 run_test:
 	mkdir -p log
 	@echo "Running compiled binary with qemu-arm..." | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
 	@echo "begin first test" | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
-	qemu-arm -L $(CROSSTOOLDIR)/$(TARGET) test_code/arm_test | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
+	qemu-arm -L $(SYSROOT_DIR) test_code/arm_test | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
 	@echo "=========================================" | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
 	@echo "begin static test" | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
-	qemu-arm -L $(CROSSTOOLDIR)/$(TARGET) test_code/arm_test_static | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
+	qemu-arm -L $(SYSROOT_DIR) test_code/arm_test_static | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
 	@echo "Test execution completed." | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
 
 clean:
 	echo "删除无用文件..."
-	cd $(CROSSTOOLDIR); \
+	cd $(CROSSTOOL_DIR); \
 	rm -rf $(TARGET)
-	cd $(BUILDDIR); \
+	cd $(BUILD_DIR); \
 	rm -rf $(TARGET)
 	echo "删除无用文件完成"
