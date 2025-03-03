@@ -18,9 +18,9 @@ BUILD_DIR := $(HOME)/build_toolchain/build_ct-ng/.build
 LOG_DIR := $(HOME)/build_toolchain/build_ct-ng/log
 GCC_BUILD_DIR := $(BUILD_DIR)/$(TARGET)/build/build-cc-gcc-final
 SYSROOT_DIR := $(CROSSTOOL_DIR)/$(TARGET)/$(TARGET)/sysroot
-TEST_CODE := arm_test
+TEST_CODE := aarch64_test
 ARCHITECTURE := aarch64
-# Define the current date
+# Define the current dategit 
 DATE := $(shell date +%Y%m%d)
 
 install_ct-ng: apt download verify build install export_path
