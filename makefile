@@ -10,7 +10,7 @@ TARBALL_URL := http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-$(VERS
 PGP_FINGERPRINT := 721B0FB1CDC8318AEBB888B809F6DD5F1F30EF2E
 
 # Define the installation directory
-TARGET := arm-unknown-linux-gnueabi
+TARGET := aarch64-unknown-linux-gnu
 TOOLDIR := $(HOME)/ct-ng-tool
 WORKDIR := $(HOME)/ct-ng-work
 CROSSTOOL_DIR := $(HOME)/x-tools
@@ -18,6 +18,8 @@ BUILD_DIR := $(HOME)/build_toolchain/build_ct-ng/.build
 LOG_DIR := $(HOME)/build_toolchain/build_ct-ng/log
 GCC_BUILD_DIR := $(BUILD_DIR)/$(TARGET)/build/build-cc-gcc-final
 SYSROOT_DIR := $(CROSSTOOL_DIR)/$(TARGET)/$(TARGET)/sysroot
+TEST_CODE := arm_test
+ARCHITECTURE := aarch64
 # Define the current date
 DATE := $(shell date +%Y%m%d)
 
@@ -34,7 +36,9 @@ apt: sudo apt update && sudo apt upgrade -y
 	help2man make libncurses5-dev  \
 	python3-dev autoconf automake libtool \
 	libtool-bin gawk wget bzip2 xz-utils\
-	unzip dejagnu libcrypt-dev
+	unzip dejagnu libcrypt-dev \
+	qemu-user-static qemu-system-aarch64 \
+	qemu-system-arm
 
 # Target to download the tarball
 download:
@@ -113,37 +117,37 @@ testsuite:
 		mkdir -p $(LOG_DIR); \
 		echo "Created log directory."; \
 	fi; \
-	make check-gcc RUNTESTFLAGS="--target_board=unix-arm " 2>&1 | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/testsuite-$(DATE).log; \
+	make check-gcc RUNTESTFLAGS="--target_board=unix-$(ARCHITECTURE) " 2>&1 | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/testsuite-$(DATE).log; \
 	echo "GCC Testsuite finished. Check $(LOG_DIR)/testsuite-$(DATE).log for results."
 
 
 compile_test:
 	mkdir -p log
 	@echo "Compiling test code with $(TARGET)-gcc..." | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
-	$(TARGET)-gccgo -o test_code/arm_test test_code/arm_test.go | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
-	$(TARGET)-gccgo -static -o test_code/arm_test_static test_code/arm_test.go | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
+	$(TARGET)-gccgo -o test_code/$(TEST_CODE) test_code/$(TEST_CODE).go | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
+	$(TARGET)-gccgo -static -o test_code/$(TEST_CODE)_static test_code/$(TEST_CODE).go | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
 	@echo "Compilation completed."
 
 file:
 	mkdir -p log
 	@echo "display file type" | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/file-target-$(DATE).log
-	@file test_code/arm_test | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/file-target-$(DATE).log
-	@file test_code/arm_test_static | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/file-target-$(DATE).log
+	@file test_code/$(TEST_CODE) | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/file-target-$(DATE).log
+	@file test_code/$(TEST_CODE)_static | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/file-target-$(DATE).log
 
 ldd:
 	mkdir -p log
 	@echo "display ldd" | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/ldd-target-$(DATE).log
-	@$(TARGET)-ldd --root=$(SYSROOT_DIR) test_code/arm_test | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/ldd-target-$(DATE).log
-	@$(TARGET)-ldd --root=$(SYSROOT_DIR) test_code/arm_test_static  | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/ldd-target-$(DATE).log
+	@$(TARGET)-ldd --root=$(SYSROOT_DIR) test_code/$(TEST_CODE) | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/ldd-target-$(DATE).log
+	@$(TARGET)-ldd --root=$(SYSROOT_DIR) test_code/$(TEST_CODE)_static  | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/ldd-target-$(DATE).log
 
 run_test:
 	mkdir -p log
-	@echo "Running compiled binary with qemu-arm..." | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
+	@echo "Running compiled binary with qemu-$(ARCHITECTURE) ..." | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
 	@echo "begin first test" | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
-	qemu-arm -L $(SYSROOT_DIR) test_code/arm_test | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
+	qemu-$(ARCHITECTURE) -L $(SYSROOT_DIR) test_code/$(TEST_CODE) | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
 	@echo "=========================================" | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
 	@echo "begin static test" | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
-	qemu-arm -L $(SYSROOT_DIR) test_code/arm_test_static | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
+	qemu-$(ARCHITECTURE)  -L $(SYSROOT_DIR) test_code/$(TEST_CODE)_static | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
 	@echo "Test execution completed." | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/run_test-target-$(DATE).log
 
 clean:

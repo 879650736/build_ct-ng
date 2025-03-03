@@ -104,7 +104,7 @@ build_ct-ng/
 ├── .config_arm               # arm配置文件
 ├── .config_arm_static        # 使用静态库的arm配置文件
 ├── test_code/                # 测试用例目录
-│   ├── arm_test.go           # Go语言测试用例
+│   ├── $(TEST_CODE).go           # Go语言测试用例
 │   └── arm_test              # 编译后的测试程序
 └── log/                      # 构建日志目录
 ```
