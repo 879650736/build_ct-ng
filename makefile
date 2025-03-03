@@ -21,11 +21,12 @@ SYSROOT_DIR := $(CROSSTOOL_DIR)/$(TARGET)/$(TARGET)/sysroot
 # Define the current date
 DATE := $(shell date +%Y%m%d)
 
-test: ldd
+install_ct-ng: apt download verify build install export_path
 
 build_cross_toolchain: ctbuild ctinstall_env compile_test file ldd run_test
 
-all: download verify build install export_path local
+test: ctinstall_env compile_test file ldd run_test
+
 
 apt: sudo apt update && sudo apt upgrade -y
 	sudo apt-get install -y gcc g++ \
