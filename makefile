@@ -78,8 +78,7 @@ export_path:
 	@echo "source ~/.zshrc"
 
 run: 
-	mkdir -p $(WORKDIR)
-	cd $(WORKDIR) && ct-ng menuconfig
+	ct-ng menuconfig
 
 help:
 	mkdir -p $(WORKDIR)
@@ -91,7 +90,6 @@ local:
 	make
 #./ct-ng help
 ctbuild:
-
 	unset CFLAGS CXXFLAGS LDFLAGS LD_LIBRARY_PATH; \
 	ct-ng build
 
