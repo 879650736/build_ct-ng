@@ -45,7 +45,7 @@ pacman: pacman -Syu
 	help2man patch libtool bison autoconf automake \
 	base-devel mingw-w64-x86_64-toolchain \
 	mingw-w64-x86_64-ncurses ncurses-devel\
-
+	gzip xz tar
 
 
 
