@@ -23,7 +23,7 @@ ARCHITECTURE := aarch64
 # Define the current dategit 
 DATE := $(shell date +%Y%m%d)
 
-install_ct-ng: apt download verify build install export_path
+install_ct-ng: download verify build install export_path
 
 build_cross_toolchain: ctbuild ctinstall_env compile_test file ldd run_test
 
@@ -38,7 +38,16 @@ apt: sudo apt update && sudo apt upgrade -y
 	libtool-bin gawk wget bzip2 xz-utils\
 	unzip dejagnu libcrypt-dev \
 	qemu-user-static qemu-system-aarch64 \
-	qemu-system-arm
+	qemu-system-arm tar gzip xz
+
+pacman: pacman -Syu
+	pacman -S make gcc flex texinfo unzip  \
+	help2man patch libtool bison autoconf automake \
+	base-devel mingw-w64-x86_64-toolchain \
+	mingw-w64-x86_64-ncurses ncurses-devel\
+
+
+
 
 # Target to download the tarball
 download:
@@ -75,11 +84,11 @@ install:
 
 # Target to export the PATH
 export_path:
-	@if ! grep -q "$(TOOLDIR)/bin" ~/.env_vars; then \
-		echo "export PATH=$(TOOLDIR)/bin:\$$PATH" >> ~/.env_vars; \
+	@if ! grep -q "$(TOOLDIR)/bin" ~/.bashrc; then \
+		echo "export PATH=$(TOOLDIR)/bin:\$$PATH" >> ~/.bashrc; \
 	fi
 	@echo "请执行以下命令完成配置:"
-	@echo "source ~/.zshrc"
+	@echo "source ~/.bashrc"
 
 run: 
 	ct-ng menuconfig
