@@ -79,7 +79,7 @@ libunwind:
     7z x -y $(SOURCE_DIR)/libunwind-$(LIBUNWIND_VERSION).tar.gz -so | 7z x -y -si -ttar -o$(SOURCE_DIR) || { echo "解压 libunwind 失败！"; rm -rf $(LIBUNWIND_DIR); exit 1; }; \
 	fi
 	cd $(SOURCE_DIR)/libunwind-$(LIBUNWIND_VERSION); \
-	./configure   --host=arm-unknown-linux-gnueabi   \
+	./configure   --host=$(TARGET)   \
 	--prefix=$(SYSROOT_DIR)/usr   --enable-static --disable-tests   \
 	CFLAGS="-I$(SYSROOT_DIR)/usr/include"   LDFLAGS="-L$(SYSROOT_DIR)/usr/lib -lgcc"; \
 	make && make install
