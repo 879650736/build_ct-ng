@@ -12,3 +12,5 @@
 libunwind*
 *.log
 build.log
+
+!sysroot_backup*.tar.xz
