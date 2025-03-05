@@ -1,6 +1,5 @@
 ./crosstool-ng-*
 ./*.tar.*
-./!sysroot_backup_*.tar.xz
 ./*.log
 
 
