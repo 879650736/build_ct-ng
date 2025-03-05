@@ -70,12 +70,18 @@ verify:
 	fi
 
 libunwind:
-	wget https://github.com/libunwind/libunwind/releases/download/v1.8.1/libunwind-1.8.1.tar.gz
-	tar xzf libunwind-1.8.1.tar.gz
-	cd libunwind-1.8.1 \
+	@if [ ! -f $(SOURCE_DIR)/libunwind-$(LIBUNWIND_VERSION).tar.gz ]; then \
+		wget $(LIBUNWIND_URL) -P $(SOURCE_DIR) \
+		 || { echo "下载 libunwind 失败！"; exit 1; }; \
+	fi
+	@if [ ! -d $(LIBUNWIND_DIR) ]; then \
+    echo "解压 libunwind..."; \
+    7z x -y $(SOURCE_DIR)/libunwind-$(LIBUNWIND_VERSION).tar.gz -so | 7z x -y -si -ttar -o$(SOURCE_DIR) || { echo "解压 libunwind 失败！"; rm -rf $(LIBUNWIND_DIR); exit 1; }; \
+	fi
+	cd libunwind-$(LIBUNWIND_VERSION); \
 	./configure   --host=arm-unknown-linux-gnueabi   \
-	--prefix=${SYSROOT_DIR}/usr   --enable-static --disable-tests   \
-	CFLAGS="-I${SYSROOT_DIR}/usr/include"   LDFLAGS="-L${SYSROOT_DIR}/usr/lib -lgcc" \
+	--prefix=$(SYSROOT_DIR)/usr   --enable-static --disable-tests   \
+	CFLAGS="-I$(SYSROOT_DIR)/usr/include"   LDFLAGS="-L$(SYSROOT_DIR)/usr/lib -lgcc"; \
 	make && make install
 
 # Target to build the project
