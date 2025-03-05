@@ -1,5 +1,6 @@
 ./crosstool-ng-*
 ./*.tar.*
+./!sysroot_backup_*.tar.xz
 ./*.log
 
 
@@ -13,4 +14,3 @@ libunwind*
 *.log
 build.log
 
-!sysroot_backup_*.tar.xz
