@@ -10,7 +10,7 @@ TARBALL_URL := http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-$(VERS
 PGP_FINGERPRINT := 721B0FB1CDC8318AEBB888B809F6DD5F1F30EF2E
 
 # Define the installation directory
-TARGET := aarch64-unknown-linux-gnu
+TARGET := arm-unknown-linux-gnueabi
 TOOLDIR := $(HOME)/ct-ng-tool
 WORKDIR := $(HOME)/ct-ng-work
 CROSSTOOL_DIR := $(HOME)/x-tools
@@ -18,8 +18,8 @@ BUILD_DIR := $(HOME)/build_toolchain/build_ct-ng/.build
 LOG_DIR := $(HOME)/build_toolchain/build_ct-ng/log
 GCC_BUILD_DIR := $(BUILD_DIR)/$(TARGET)/build/build-cc-gcc-final
 SYSROOT_DIR := $(CROSSTOOL_DIR)/$(TARGET)/$(TARGET)/sysroot
-TEST_CODE := aarch64_test
-ARCHITECTURE := aarch64
+TEST_CODE := arm_test
+ARCHITECTURE := arm
 # Define the current dategit 
 DATE := $(shell date +%Y%m%d)
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
@@ -47,10 +47,8 @@ pacman: pacman -Syu
 	base-devel mingw-w64-x86_64-toolchain \
 	mingw-w64-x86_64-ncurses ncurses-devel\
 	tar gzip xz p7zip coreutils moreutils\
-	rsync
-	
-
-
+	rsync autoconf diffutils gawk \
+	git gperf
 
 # Target to download the tarball
 download:
@@ -70,6 +68,15 @@ verify:
 		rm crosstool-ng-$(VERSION).tar.bz2.sig; \
 		exit 1; \
 	fi
+
+libunwind:
+	wget https://github.com/libunwind/libunwind/releases/download/v1.8.1/libunwind-1.8.1.tar.gz
+	tar xzf libunwind-1.8.1.tar.gz
+	cd libunwind-1.8.1 \
+	./configure   --host=arm-unknown-linux-gnueabi   \
+	--prefix=${SYSROOT_DIR}/usr   --enable-static --disable-tests   \
+	CFLAGS="-I${SYSROOT_DIR}/usr/include"   LDFLAGS="-L${SYSROOT_DIR}/usr/lib -lgcc" \
+	make && make install
 
 # Target to build the project
 build:
@@ -107,7 +114,7 @@ local:
 #./ct-ng help
 ctbuild:
 	mkdir -p LOG_DIR
-	cp ./build.log ./LOG_DIR/build$(TIMESTAMP).log
+#cp ./build.log ./LOG_DIR/build$(TIMESTAMP).log
 	unset CFLAGS CXXFLAGS LDFLAGS LD_LIBRARY_PATH; \
 	ct-ng build
 
@@ -119,7 +126,7 @@ ctinstall_env:
 	@if ! grep -q "$(CROSSTOOL_DIR)/$(TARGET)/bin" ~/.bashrc; then \
 		echo "export PATH=$(CROSSTOOL_DIR)/$(TARGET)/bin:\$$PATH" >> ~/.bashrc; \
 	fi
-	echo "环境变量配置完成! 请手动执行: source ~/.zshrc"
+	echo "环境变量配置完成! 请手动执行: source ~/.bashrc"
 
 testsuite:
 	echo "Running GCC Testsuite..."
@@ -138,8 +145,8 @@ testsuite:
 compile_test:
 	mkdir -p log
 	@echo "Compiling test code with $(TARGET)-gcc..." | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
-	$(TARGET)-gccgo -o test_code/$(TEST_CODE) test_code/$(TEST_CODE).go | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
-	$(TARGET)-gccgo -static -o test_code/$(TEST_CODE)_static test_code/$(TEST_CODE).go | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
+	$(TARGET)-gccgo -o test_code/$(TEST_CODE) test_code/$(TEST_CODE).go  -lunwind -lgcc -lgcc_eh   -I${SYSROOT_DIR}/usr/include -L${SYSROOT_DIR}/usr/lib | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
+	$(TARGET)-gccgo -static -o test_code/$(TEST_CODE)_static test_code/$(TEST_CODE).go  -lunwind -lgcc -lgcc_eh   -I${SYSROOT_DIR}/usr/include -L${SYSROOT_DIR}/usr/lib | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
 	@echo "Compilation completed."
 
 file:
@@ -151,8 +158,8 @@ file:
 ldd:
 	mkdir -p log
 	@echo "display ldd" | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/ldd-target-$(DATE).log
-	@$(TARGET)-ldd --root=$(SYSROOT_DIR) test_code/$(TEST_CODE) | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/ldd-target-$(DATE).log
-	@$(TARGET)-ldd --root=$(SYSROOT_DIR) test_code/$(TEST_CODE)_static  | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/ldd-target-$(DATE).log
+	$(TARGET)-ldd --root=$(SYSROOT_DIR) test_code/$(TEST_CODE) | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/ldd-target-$(DATE).log
+	$(TARGET)-ldd --root=$(SYSROOT_DIR) test_code/$(TEST_CODE)_static  | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/ldd-target-$(DATE).log
 
 run_test:
 	mkdir -p log
