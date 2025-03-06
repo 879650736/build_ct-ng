@@ -30,6 +30,8 @@ build_cross_toolchain: ctbuild ctinstall_env compile_test file ldd run_test
 
 test: ctinstall_env compile_test file ldd run_test
 
+print-sysroot:
+	@echo $(SYSROOT_DIR)
 
 apt: sudo apt update && sudo apt upgrade -y
 	sudo apt-get install -y gcc g++ \
@@ -154,7 +156,7 @@ compile_test:
 	mkdir -p log
 	@echo "Compiling test code with $(TARGET)-gcc..." | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
 	$(TARGET)-gccgo -o test_code/$(TEST_CODE) test_code/$(TEST_CODE).go  -lunwind -lgcc -lgcc_eh   -I${SYSROOT_DIR}/usr/include -L${SYSROOT_DIR}/usr/lib | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
-	$(TARGET)-gccgo -static -o test_code/$(TEST_CODE)_static test_code/$(TEST_CODE).go  -lunwind -lgcc -lgcc_eh   -I${SYSROOT_DIR}/usr/include -L${SYSROOT_DIR}/usr/lib | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
+	$(TARGET)-gccgo -static -o test_code/$(TEST_CODE)_static test_code/$(TEST_CODE).go  -lunwind -lgcc -lgcc_eh -lsupc++ -lgcc -lpthread  -I${SYSROOT_DIR}/usr/include -L${SYSROOT_DIR}/usr/lib | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(LOG_DIR)/compile_test-$(DATE).log
 	@echo "Compilation completed."
 
 file:
