@@ -50,7 +50,7 @@ pacman: pacman -Syu
 	mingw-w64-x86_64-ncurses ncurses-devel\
 	tar gzip xz p7zip coreutils moreutils\
 	rsync autoconf diffutils gawk \
-	git gperf
+	git gperf mingw-w64-cross-toolchain mingw-w64-cross 
 
 # Target to download the tarball
 download:

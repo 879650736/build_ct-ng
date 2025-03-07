@@ -735,9 +735,9 @@ CT_GDB_PATCH_GLOBAL=y
 # CT_GDB_PATCH_LOCAL_BUNDLED is not set
 # CT_GDB_PATCH_NONE is not set
 CT_GDB_PATCH_ORDER="global"
-CT_GDB_V_9=y
-# CT_GDB_V_8_3 is not set
-CT_GDB_VERSION="9.2"
+# CT_GDB_V_9 is not set
+CT_GDB_V_8_3=y
+CT_GDB_VERSION="8.3.1"
 CT_GDB_MIRRORS="$(CT_Mirrors GNU gdb) $(CT_Mirrors sourceware gdb/releases)"
 CT_GDB_ARCHIVE_FILENAME="@{pkg_name}-@{version}"
 CT_GDB_ARCHIVE_DIRNAME="@{pkg_name}-@{version}"
@@ -858,10 +858,10 @@ CT_GMP_PATCH_GLOBAL=y
 # CT_GMP_PATCH_LOCAL_BUNDLED is not set
 # CT_GMP_PATCH_NONE is not set
 CT_GMP_PATCH_ORDER="global"
-CT_GMP_V_6_3=y
+# CT_GMP_V_6_3 is not set
 # CT_GMP_V_6_2 is not set
-# CT_GMP_V_6_1 is not set
-CT_GMP_VERSION="6.3.0"
+CT_GMP_V_6_1=y
+CT_GMP_VERSION="6.1.2"
 CT_GMP_MIRRORS="https://gmplib.org/download/gmp https://gmplib.org/download/gmp/archive $(CT_Mirrors GNU gmp)"
 CT_GMP_ARCHIVE_FILENAME="@{pkg_name}-@{version}"
 CT_GMP_ARCHIVE_DIRNAME="@{pkg_name}-@{version}"
@@ -971,11 +971,11 @@ CT_NCURSES_PATCH_GLOBAL=y
 # CT_NCURSES_PATCH_LOCAL_BUNDLED is not set
 # CT_NCURSES_PATCH_NONE is not set
 CT_NCURSES_PATCH_ORDER="global"
-CT_NCURSES_V_6_4=y
-# CT_NCURSES_V_6_2 is not set
+# CT_NCURSES_V_6_4 is not set
+CT_NCURSES_V_6_2=y
 # CT_NCURSES_V_6_1 is not set
 # CT_NCURSES_V_6_0 is not set
-CT_NCURSES_VERSION="6.4"
+CT_NCURSES_VERSION="6.2"
 CT_NCURSES_MIRRORS="https://invisible-mirror.net/archives/ncurses $(CT_Mirrors GNU ncurses)"
 CT_NCURSES_ARCHIVE_FILENAME="@{pkg_name}-@{version}"
 CT_NCURSES_ARCHIVE_DIRNAME="@{pkg_name}-@{version}"
@@ -1002,9 +1002,9 @@ CT_ZLIB_PATCH_GLOBAL=y
 # CT_ZLIB_PATCH_LOCAL_BUNDLED is not set
 # CT_ZLIB_PATCH_NONE is not set
 CT_ZLIB_PATCH_ORDER="global"
-CT_ZLIB_V_1_3_1=y
-# CT_ZLIB_V_1_2_13 is not set
-CT_ZLIB_VERSION="1.3.1"
+# CT_ZLIB_V_1_3_1 is not set
+CT_ZLIB_V_1_2_13=y
+CT_ZLIB_VERSION="1.2.13"
 CT_ZLIB_MIRRORS="https://github.com/madler/zlib/releases/download/v${CT_ZLIB_VERSION} https://www.zlib.net/"
 CT_ZLIB_ARCHIVE_FILENAME="@{pkg_name}-@{version}"
 CT_ZLIB_ARCHIVE_DIRNAME="@{pkg_name}-@{version}"
