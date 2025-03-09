@@ -2,12 +2,14 @@
 # Automatically generated file; DO NOT EDIT.
 # crosstool-NG 1.27.0 Configuration
 #
+CT_CONFIGURE_has_static_link=y
 CT_CONFIGURE_has_cxx11=y
 CT_CONFIGURE_has_wget=y
 CT_CONFIGURE_has_curl=y
+CT_CONFIGURE_has_meson=y
+CT_CONFIGURE_has_ninja=y
 CT_CONFIGURE_has_make_3_81_or_newer=y
 CT_CONFIGURE_has_make_4_0_or_newer=y
-CT_CONFIGURE_has_make_4_4_or_newer=y
 CT_CONFIGURE_has_libtool_2_4_or_newer=y
 CT_CONFIGURE_has_libtoolize_2_4_or_newer=y
 CT_CONFIGURE_has_autoconf_2_65_or_newer=y
@@ -215,6 +217,9 @@ CT_FORCE_SYSROOT=y
 CT_USE_SYSROOT=y
 CT_SYSROOT_NAME="sysroot"
 CT_SYSROOT_DIR_PREFIX=""
+CT_WANTS_STATIC_LINK=y
+CT_WANTS_STATIC_LINK_CXX=y
+# CT_STATIC_TOOLCHAIN is not set
 CT_SHOW_CT_VERSION=y
 CT_TOOLCHAIN_PKGVERSION=""
 CT_TOOLCHAIN_BUGURL=""
@@ -680,6 +685,7 @@ CT_CC_GCC_HAS_LIBMPX=y
 CT_CC_GCC_ENABLE_CXX_FLAGS=""
 CT_CC_GCC_CORE_EXTRA_CONFIG_ARRAY=""
 CT_CC_GCC_EXTRA_CONFIG_ARRAY=""
+CT_CC_GCC_STATIC_LIBSTDCXX=y
 # CT_CC_GCC_SYSTEM_ZLIB is not set
 CT_CC_GCC_CONFIG_TLS=m
 
@@ -800,19 +806,19 @@ CT_GETTEXT_PATCH_GLOBAL=y
 # CT_GETTEXT_PATCH_LOCAL_BUNDLED is not set
 # CT_GETTEXT_PATCH_NONE is not set
 CT_GETTEXT_PATCH_ORDER="global"
-CT_GETTEXT_V_0_23_1=y
-# CT_GETTEXT_V_0_22_5 is not set
+# CT_GETTEXT_V_0_23_1 is not set
+CT_GETTEXT_V_0_22_5=y
 # CT_GETTEXT_V_0_21 is not set
 # CT_GETTEXT_V_0_20_1 is not set
 # CT_GETTEXT_V_0_19_8_1 is not set
-CT_GETTEXT_VERSION="0.23.1"
+CT_GETTEXT_VERSION="0.22.5"
 CT_GETTEXT_MIRRORS="$(CT_Mirrors GNU gettext)"
 CT_GETTEXT_ARCHIVE_FILENAME="@{pkg_name}-@{version}"
 CT_GETTEXT_ARCHIVE_DIRNAME="@{pkg_name}-@{version}"
 CT_GETTEXT_ARCHIVE_FORMATS=".tar.xz .tar.gz"
 CT_GETTEXT_SIGNATURE_FORMAT="packed/.sig"
-CT_GETTEXT_later_than_0_23=y
-CT_GETTEXT_0_23_or_later=y
+CT_GETTEXT_0_23_or_older=y
+CT_GETTEXT_older_than_0_23=y
 CT_GETTEXT_later_than_0_21=y
 CT_GETTEXT_0_21_or_later=y
 CT_GETTEXT_INCOMPATIBLE_WITH_UCLIBC_NG=y
