@@ -188,3 +188,6 @@ clean:
 	cd $(BUILD_DIR); \
 	rm -rf $(TARGET)
 	echo "删除无用文件完成"
+
+delete:
+	rm -rf $(CROSSTOOL_DIR);
