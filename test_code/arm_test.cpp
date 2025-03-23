@@ -1,34 +1,24 @@
 #include <iostream>
 #include <vector>
+#include <string>
+
 using namespace std;
 
-// 简单的类示例
-class Calculator {
-public:
-    int multiply(int a, int b) {
-        return a * b;
+int subtract(int a, int b)
+{
+    return a - b;
+}
+
+int main()
+{
+    const char *languages_array[] = {"C++", "Python", "Java"};
+    vector<string> languages(languages_array, languages_array + sizeof(languages_array) / sizeof(languages_array[0]));
+
+    for (vector<string>::const_iterator it = languages.begin(); it != languages.end(); ++it)
+    {
+        cout << *it << endl;
     }
-};
 
-int main() {
-    // 基本输出测试
-    cout << "C++ Test Program" << endl;
-
-    // 类方法测试
-    Calculator calc;
-    cout << "Product of 4 * 6 = " << calc.multiply(4, 6) << endl;
-
-    // 容器测试
-    vector<string> languages = {"C++", "Python", "Java"};
-    cout << "Languages: ";
-    for (const auto& lang : languages) {
-        cout << lang << " ";
-    }
-    cout << endl;
-
-    // 现代C++特性测试（C++11及以上）
-    auto result = [](int a, int b) { return a - b; };
-    cout << "10 - 7 = " << result(10, 7) << endl;
-
+    cout << "10 - 7 = " << subtract(10, 7) << endl;
     return 0;
 }
